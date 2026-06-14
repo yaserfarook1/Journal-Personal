@@ -100,7 +100,26 @@ header{padding:clamp(20px,3vw,28px) 0 16px;display:flex;align-items:center;justi
 .cal-cell.win .cp{color:var(--pos)}
 .cal-cell.loss{background:linear-gradient(180deg,rgba(255,107,129,.14),rgba(255,107,129,.04));border-color:rgba(255,107,129,.3)}
 .cal-cell.loss .cp{color:var(--neg)}
-@media(max-width:640px){.cal-cell{padding:5px;border-radius:8px}.cal-cell .cp{font-size:.75rem}.cal-cell .ct2{display:none}}
+.cal-cell .cp .full{display:inline}
+.cal-cell .cp .short{display:none}
+@media(max-width:760px){
+  .cal-grid{gap:4px}
+  .cal-cell{aspect-ratio:1;padding:5px 4px;border-radius:9px;justify-content:flex-start;gap:3px}
+  .cal-cell .cd{font-size:10px}
+  .cal-cell .cp{font-size:.72rem;line-height:1}
+  .cal-cell .cp .full{display:none}
+  .cal-cell .cp .short{display:inline}
+  .cal-cell .ct2{display:none}
+  .cal-dow{font-size:9px;padding:4px 0}
+}
+@media(max-width:430px){
+  .cal-grid{gap:3px}
+  .cal-cell{padding:4px 2px;border-radius:7px}
+  .cal-cell .cd{font-size:9px}
+  .cal-cell .cp{font-size:.6rem;letter-spacing:-.02em}
+  .cal-title{font-size:1.05rem;min-width:120px}
+  .cal-btn{width:34px;height:34px;font-size:16px}
+}
 
 /* trades table */
 .tbl-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -351,6 +370,7 @@ const $=id=>document.getElementById(id);
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function money(n){const v=Math.round(Math.abs(n)).toLocaleString();return (n<0?'-$':'$')+v;}
 function signed(n){return (n>=0?'+':'')+money(n);}
+function moneyShort(n){const a=Math.abs(n);let s;if(a>=10000)s=(a/1000).toFixed(0)+'k';else if(a>=1000)s=(a/1000).toFixed(1)+'k';else s=Math.round(a);return (n<0?'-':'+')+s;}
 function num(v){const n=parseFloat(v);return isNaN(n)?null:n;}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function setSync(t,ok){$('sync-txt').textContent=t;document.querySelector('.dot').style.background=ok?'var(--pos)':'var(--gold)';}
@@ -470,7 +490,7 @@ function renderCalendar(){
     const cls=arr.length?(net>0?'win':(net<0?'loss':'')):'';
     cells+=`<div class="cal-cell ${cls} ${d===todayK?'today':''}" ${arr.length?`onclick="openDay(${y},${m},${d})"`:''}>
       <div class="cd">${d}</div>
-      ${arr.length?`<div><div class="cp">${signed(net)}</div><div class="ct2">${arr.length} trade${arr.length>1?'s':''}</div></div>`:''}
+      ${arr.length?`<div><div class="cp"><span class="full">${signed(net)}</span><span class="short">${moneyShort(net)}</span></div><div class="ct2">${arr.length} trade${arr.length>1?'s':''}</div></div>`:''}
     </div>`;
   }
   $('cal-grid').innerHTML=cells;
