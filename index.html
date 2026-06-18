@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Trade Journal</title>
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/7314/7314579.png">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/7314/7314579.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -326,7 +328,7 @@ tr.trow:hover td{background:rgba(255,255,255,.015);cursor:pointer}
     <div class="fg" style="margin-top:14px"><label>Notes</label><textarea id="tm-notes" placeholder="What happened, what you saw, what you'd change…"></textarea></div>
     <div class="fg" style="margin-top:14px">
       <label>Screenshots</label>
-      <div class="drop" id="tm-drop">Drop images here or click to upload</div>
+      <div class="drop" id="tm-drop">Drop images here, click to upload, or paste (Ctrl/Cmd+V)</div>
       <input type="file" id="tm-file" accept="image/*" multiple style="display:none">
       <div class="upbar" id="tm-upbar"><i></i></div>
       <div class="shots" id="tm-shots"></div>
@@ -697,6 +699,14 @@ function initUpload(){
   ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
   ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
   drop.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
+  // paste from clipboard (only while the trade modal is open)
+  window.addEventListener('paste',e=>{
+    if(!$('trade-modal').classList.contains('show'))return;
+    const items=e.clipboardData&&e.clipboardData.items;if(!items)return;
+    const imgs=[];
+    for(const it of items){if(it.type&&it.type.startsWith('image/')){const f=it.getAsFile();if(f)imgs.push(f);}}
+    if(imgs.length){e.preventDefault();handleFiles(imgs);toast(imgs.length+' image'+(imgs.length>1?'s':'')+' pasted');}
+  });
 }
 async function handleFiles(files){
   const bar=$('tm-upbar'),fill=bar.querySelector('i');
